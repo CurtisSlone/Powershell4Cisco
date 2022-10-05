@@ -2,7 +2,7 @@ $User = ""
 $Password = ""
 $IP = ""
 $output = ""
-$CurentDevice
+$CurentDevice = ""
 $Firmware = ""
 
 $UpdateMap = @{
