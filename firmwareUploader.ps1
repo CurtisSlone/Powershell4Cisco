@@ -53,7 +53,7 @@ switch -Regex ($CurrentDevice) {
 $Truncate = $Firmware.SubString(0,5)
 
 $p.StandardInput.Writeline("dir | i $Truncate")
-
+Write-Host "Checking for firmware"
 while (!$output.Contains('#')) {
     $output.StandardOutput.Readline()
     if ($output.Contains($Firmware) -eq $true) {
