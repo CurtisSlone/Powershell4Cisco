@@ -1,7 +1,9 @@
-#Variable Definitions
+#User Information - Please Fill-In
 $User = ""
 $Password = ""
 $IP = ""
+
+# Variable Definitions - Do not fill-in
 $Output = ""
 $CurentDevice = ""
 $Firmware = ""
