@@ -1,10 +1,12 @@
+#Variable Definitions
 $User = ""
 $Password = ""
 $IP = ""
-$output = ""
+$Output = ""
 $CurentDevice = ""
 $Firmware = ""
 
+#FirmwareUpdate Map
 $UpdateMap = @{
     C3560 = "c3560cx-universalk9-mz.152-7.E5.bin";
     C38XX = "cat3k_caa-universalk9.16.12.07.SPA.bin";
@@ -15,30 +17,47 @@ $UpdateMap = @{
     NEX = "nxos.9.3.9.bin";
 }
 
-$psi = New-Object System.Diagnostics.ProcessStartInfo
-$psi.FileName = "ssh.exe"
-$psi.RedirectStandardInput = $true
-$psi.RedirectStandardOutput = $true
-$psi.UseShellExecute = $false
-$psi.Arguments = "-o StrictHostKeyChecking=no $User@$IP"
+# SSH Process Define
+$sshd = New-Object System.Diagnostics.ProcessStartInfo
+$sshd.FileName = "ssh.exe"
+$sshd.RedirectStandardInput = $true
+$sshd.RedirectStandardOutput = $true
+$sshd.UseShellExecute = $false
+$sshd.Arguments = "-o StrictHostKeyChecking=no $User@$IP"
 
-$p = [System.Diagnostics.Process]::Start($psi)
+#SCP Process Define
+$scpd = New-Object System.Diagnostics.ProcessStartInfo
+$scpd.FileName = "ssh.exe"
+$scpd.RedirectStandardInput = $true
+$scpd.RedirectStandardOutput = $true
+$scpd.UseShellExecute = $false
 
+#SSH Process Start
+$sshp = [System.Diagnostics.Process]::Start($sshd)
+
+#System Sleep in-case distant end has latency
 Start-Sleep -s 8
 
+#Send Keys for Password
 [System.Windows.Forms.SendKeys]::SendWait($Password)
 [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
 
-Start-Sleep -s 3
+#Allow distant end to load
+Start-Sleep -s 2
 
-$p.StandardInput.Writeline("show inventory")
+# Check Device model
+Write-Host "Checking device model"
+$sshp.StandardInput.Writeline("show inventory")
 
+# Capture Output from show inventory command
 while (!$output.Contains("DESCR")) {
-    $output = $p.StandardOutput.Readline()
+    $output = $sshp.StandardOutput.Readline()
 }
 
+#Capture Device Name
 $CurrentDevice = $output.Split(":")[2]
 
+# Firmware Choice Logic
 switch -Regex ($CurrentDevice) {
     '38[a-zA-Z0-9]{2}' {$Firmware = $UpdateMap.C38XX; Break}
     '44[a-zA-Z0-9]{2}' {$Firmware = $UpdateMap.C44XX; Break}
@@ -49,20 +68,39 @@ switch -Regex ($CurrentDevice) {
     'nex' {$Firmware = $UpdateMap.NEX; Break}
 }
 
-$p.StandardInput.Writeline("dir")
+# Verify if distant-end has correct firmware
+$sshp.StandardInput.Writeline("dir")
 Write-Host "Checking for firmware"
 while (!$output.Contains('bytes free')) {
     $output.StandardOutput.Readline()
     if ($output.Contains($Firmware) -eq $true) {
+        #Correct firmware found
+        Write-Host "Found!"
         Break;
     }
-    Write-Host $output
+    
+    Write-Host "Searching..."
 }
 
+# Output filter
 if ($output.Contains($Firmware)) {
     Write-Host "Device already updated"
+    $sshp.StandardInput.Writeline("exit")
 } else {
-    Write-Host "Device needs updated"
+    Write-Host "Up-to-date firmware not found."
+    Write-Host "Device needs to be updated."
+    Write-Host "Updating now..."
+    $sshp.StandardInput.Writeline("exit")
+
+    #Define SCP arguments
+    $scpd.Arguments = ".\$Firmware $User@$IP:flash:/$Firmware"
+    $scpp = [System.Diagnostics.Process]::Start($scpd)
+
+    #Allow distant end to load if latent
+    Start-Sleep -s 8
+
+    # Send password to authenticate
+    [System.Windows.Forms.SendKeys]::SendWait($Password)
+    [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
 }
 
-$p.StandardInput.Writeline("exit")
