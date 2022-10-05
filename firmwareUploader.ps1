@@ -103,7 +103,7 @@ foreach($ip in $IPArr)
         $sshp.StandardInput.Writeline("exit")
 
         #Define SCP arguments
-        $scpd.Arguments = ".\$Firmware $User@$IP:flash:/$Firmware"
+        $scpd.Arguments = ".\$Firmware $User@$ip:flash:/$Firmware"
         $scpp = [System.Diagnostics.Process]::Start($scpd)
 
         #Allow distant end to load if latent
