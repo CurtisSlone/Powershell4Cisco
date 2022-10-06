@@ -23,9 +23,9 @@ $sshd.RedirectStandardInput = $true
 $sshd.RedirectStandardOutput = $true
 $sshd.UseShellExecute = $false
 
-#SCP Process Define
+#CMD process define... Used to call SCP in standardinput.writeline()
 $scpd = New-Object System.Diagnostics.ProcessStartInfo
-$scpd.FileName = "ssh.exe"
+$scpd.FileName = "cmd.exe"
 $scpd.RedirectStandardInput = $true
 $scpd.RedirectStandardOutput = $true
 $scpd.UseShellExecute = $false
@@ -55,6 +55,7 @@ foreach($ip in $IPArr)
     #Allow distant end to load
     Start-Sleep -s 2
 
+    # Remove terminal length to avoid stdout being stuck at --More--
     # Check Device model
     Write-Host "Checking device model"
     $sshp.StandardInput.Writeline("show inventory")
@@ -102,10 +103,14 @@ foreach($ip in $IPArr)
         Write-Host "Updating now..."
         $sshp.StandardInput.Writeline("exit")
 
+        #Get full path of firmware file
+        $FullFilePath = Get-Child -Path . -Filter $Firmware | %$_.FullName
         #Define SCP arguments
-        $scpd.Arguments = ".\$Firmware $User@$ip:flash:/$Firmware"
+        $scpd.Arguments = ""
         $scpp = [System.Diagnostics.Process]::Start($scpd)
+        $scpp.StandardInput.Writeline("scp $FullFilePath $User@$ip`:flash`:/$Firmware")
 
+        $Output = ""
         #Allow distant end to load if latent
         Start-Sleep -s 8
 
