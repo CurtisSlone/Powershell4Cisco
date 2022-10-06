@@ -81,8 +81,8 @@ foreach($ip in $IPArr)
     # Verify if distant-end has correct firmware
     $sshp.StandardInput.Writeline("dir")
     Write-Host "Checking for firmware"
-    while (!$output.Contains('bytes free')) {
-        $output.StandardOutput.Readline()
+    while (!$Output.Contains('bytes free')) {
+        $Output = $sshp.StandardOutput.Readline()
         if ($output.Contains($Firmware) -eq $true) {
             #Correct firmware found
             Write-Host "Found!"
