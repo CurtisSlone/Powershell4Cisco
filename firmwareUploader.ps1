@@ -123,6 +123,7 @@ foreach($ip in $IPArr)
         {
             $Output = $scpp.StandardOutput.Readline()
         }
+        $scpp.StandardInput.Writeline("exit")
         Write-Host "Finished Uploading Firmware to $ip"
     }
 
