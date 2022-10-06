@@ -40,7 +40,7 @@ foreach($ip in $IPArr)
     $Firmware = ""
 
     # Define current IP for ssh in Loop
-    $sshd.Arguments = "-o StrictHostKeyChecking=no $User@$IP"
+    $sshd.Arguments = "-o StrictHostKeyChecking=no $User@$ip"
 
     #SSH Process Start
     $sshp = [System.Diagnostics.Process]::Start($sshd)
