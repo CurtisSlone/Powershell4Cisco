@@ -56,6 +56,7 @@ foreach($ip in $IPArr)
     Start-Sleep -s 2
 
     # Remove terminal length to avoid stdout being stuck at --More--
+    $sshp.StandardInput.Writeline("term len 0")
     # Check Device model
     Write-Host "Checking device model"
     $sshp.StandardInput.Writeline("show inventory")
