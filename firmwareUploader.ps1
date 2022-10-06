@@ -103,8 +103,8 @@ foreach($ip in $IPArr)
         Write-Host "Updating now..."
         $sshp.StandardInput.Writeline("exit")
 
-        #Get full path of firmware file
-        $FullFilePath = Get-Child -Path . -Filter $Firmware | %$_.FullName
+        #Get full path of firmware file from Documents folder
+        $FullFilePath = Get-Child -Path $env:CURRENTPROFILE\Documents -Filter $Firmware | %$_.FullName
         #Define SCP arguments
         $scpd.Arguments = ""
         $scpp = [System.Diagnostics.Process]::Start($scpd)
