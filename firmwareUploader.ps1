@@ -27,7 +27,7 @@ $sshd.UseShellExecute = $false
 $scpd = New-Object System.Diagnostics.ProcessStartInfo
 $scpd.FileName = "cmd.exe"
 $scpd.RedirectStandardInput = $true
-$scpd.RedirectStandardOutput = $true
+$scpd.RedirectStandardOutput = $false
 $scpd.UseShellExecute = $false
 
 
@@ -118,13 +118,6 @@ foreach($ip in $IPArr)
         [System.Windows.Forms.SendKeys]::SendWait($Password)
         [System.Windows.Forms.SendKeys]::SendWait("{ENTER}")
 
-        #Capture Finished Uploading Message
-        while(!$Output.Contains("closed by remote host"))
-        {
-            $Output = $scpp.StandardOutput.Readline()
-        }
-        $scpp.StandardInput.Writeline("exit")
-        Write-Host "Finished Uploading Firmware to $ip"
     }
 
 }
