@@ -83,6 +83,9 @@ foreach($ip in $IPArr)
     # Verify if distant-end has correct firmware
     $sshp.StandardInput.Writeline("dir")
     Write-Host "Checking for firmware"
+    Write-Host $Firmware
+    Write-Host $CurrentDevice
+    Write-Host "Searching..."
     while (!$Output.Contains('bytes free')) {
         $Output = $sshp.StandardOutput.Readline()
         if ($output.Contains($Firmware) -eq $true) {
@@ -91,7 +94,7 @@ foreach($ip in $IPArr)
             Break;
         }
         
-        Write-Host "Searching..."
+        
     }
 
     # Output filter
@@ -102,16 +105,16 @@ foreach($ip in $IPArr)
         Write-Host "Up-to-date firmware not found."
         Write-Host "Device needs to be updated."
         Write-Host "Updating now..."
+        Write-Host $Firmware
         $sshp.StandardInput.Writeline("exit")
 
         #Get full path of firmware file from Documents folder
-        $FullFilePath = Get-Child -Path $env:CURRENTPROFILE\Documents -Filter $Firmware | %$_.FullName
+        $FullFilePath = Get-Child -Path $env:CURRENTPROFILE\Documents -Filter $Firmware | %{$_.FullName}
         #Define SCP arguments
         $scpd.Arguments = ""
         $scpp = [System.Diagnostics.Process]::Start($scpd)
         $scpp.StandardInput.Writeline("scp $FullFilePath $User@$ip`:flash`:/$Firmware")
 
-        $Output = ""
         #Allow distant end to load if latent
         Start-Sleep -s 8
 
