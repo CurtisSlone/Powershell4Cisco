@@ -109,7 +109,7 @@ foreach($ip in $IPArr)
         $sshp.StandardInput.Writeline("exit")
 
         #Get full path of firmware file from Documents folder
-        $FullFilePath = Get-ChildItem -Path $env:CURRENTPROFILE\Documents -Filter $Firmware | %{$_.FullName}
+        $FullFilePath = Get-ChildItem -Path $env:USERPROFILE\Documents -Filter $Firmware | %{$_.FullName}
         #Define SCP arguments
         $scpd.Arguments = ""
         $scpp = [System.Diagnostics.Process]::Start($scpd)
